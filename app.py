@@ -171,14 +171,15 @@ def cloud_fast_api_1(data: RequestData):
     data_int = data.data_int
 
     log_txt.add_log_txt("API処理開始")
+
+    # メールアドレスのリストをExcelから取得
+    mail_list , cc_mail_list , from_email , from_email_smtp_password = mail_list_from_excel(mail_excel_path)
+    log_txt.add_log_txt("メールアドレスのリストをExcelから取得 が成功")
     
     try:
         # csvファイルからExcelファイルに変換
         csv_to_excel(output_reins_csv_path , output_reins_excel_path)
         log_txt.add_log_txt("スクレイピング結果のcsvファイルをExcelファイルに変更 : 完了")
-
-        # メールアドレスのリストをExcelから取得
-        mail_list , cc_mail_list , from_email , from_email_smtp_password = mail_list_from_excel(mail_excel_path)
         # メールの送信文
         message_subject = "RenderのExcel操作のAPIテスト"
         message_body = f"""
