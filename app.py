@@ -114,15 +114,20 @@ def remove_non_number(text):
 def csv_to_excel(input_csv_path, output_excel_path):
     """ csvファイルをExcelファイルに変換する関数 """
     workbook = openpyxl.Workbook()
+    log_txt.add_log_txt("Excelのワークブック起動完了 : workbook = openpyxl.load_workbook()")
     sheet = workbook.active
+    log_txt.add_log_txt("ワークブックのアクティブ化完了 : sheet = workbook.active")
     # CSVファイルを開き、行ごとにExcelシートに書き込む
     with open(input_csv_path, 'r', newline='', encoding='utf-8') as csvfile:
         csv_reader = csv.reader(csvfile)
+        log_txt.add_log_txt("csvファイルの起動成功 : csv_reader = csv.reader(csvfile)")
         for row_index, row in enumerate(csv_reader, start=1):
             for col_index, value in enumerate(row, start=1):
                 sheet.cell(row=row_index, column=col_index, value=value)
+    log_txt.add_log_txt("セルの編集可能が証明 : sheet.cell(row=row_index, column=col_index, value=value)")
     # Excelファイルに保存
     workbook.save(output_excel_path)
+    log_txt.add_log_txt("Excelファイルに保存が成功")
 
 def list_to_csv(to_csv_list: list , csv_path: str = "output.csv"):
     """ 多次元リストのデータをcsvファイルに保存する関数 """
@@ -167,8 +172,12 @@ def cloud_fast_api_1(data: RequestData):
 
     log_txt.add_log_txt("API処理開始")
     
-    # メールアドレスのリストをExcelから取得
     try:
+        # csvファイルからExcelファイルに変換
+        csv_to_excel(output_reins_csv_path , output_reins_excel_path)
+        log_txt.add_log_txt("スクレイピング結果のcsvファイルをExcelファイルに変更 : 完了")
+
+        # メールアドレスのリストをExcelから取得
         mail_list , cc_mail_list , from_email , from_email_smtp_password = mail_list_from_excel(mail_excel_path)
         # メールの送信文
         message_subject = "RenderのExcel操作のAPIテスト"
