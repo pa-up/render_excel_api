@@ -16,8 +16,7 @@ from email.mime.application import MIMEApplication
 # パスの定義
 static_path = "static"
 mail_excel_path = static_path + "/input_excel/email_pw.xlsx"
-search_method_csv_path = static_path + "/csv/search_method.csv"
-output_reins_csv_path = static_path + "/csv/output_reins.csv"
+search_method_excel_path = static_path + "/input_excel/search_method.xlsx"
 output_reins_excel_path = static_path + "/output_excel/output_reins.xlsx"
 log_txt_path = static_path + "/log/log.txt"
 
@@ -103,6 +102,36 @@ def mail_list_from_excel(mail_excel_path):
     return mail_list , cc_mail_list , from_email , from_email_smtp_password
 
 
+def excel_to_list(input_excel_path: str = "input.xlsx"):
+    workbook = openpyxl.load_workbook(input_excel_path)
+    log_txt.add_log_txt("Excelのワークブック起動完了 : workbook = openpyxl.load_workbook()")
+    sheet = workbook.active
+    log_txt.add_log_txt("ワークブックのアクティブ化完了 : sheet = workbook.active")
+    row_num = sheet.max_row
+    col_num = sheet.max_column
+    data_list = []
+    for row in range(1, row_num+1):
+        row_data = []
+        for col in range(1, col_num+1):
+            cell_value = sheet.cell(row=row, column=col).value
+            row_data.append(cell_value)
+        data_list.append(row_data)
+    log_txt.add_log_txt("セルの編集可能が証明 : cell_value = sheet.cell(row=row, column=col).value")
+    return data_list
+
+
+def list_to_excel(to_excel_list: list , output_excel_path: str = "output.xlsx"):
+    workbook = openpyxl.Workbook()
+    log_txt.add_log_txt("Excelのワークブック起動完了 : workbook = openpyxl.load_workbook()")
+    sheet = workbook.active
+    log_txt.add_log_txt("ワークブックのアクティブ化完了 : sheet = workbook.active")
+    row_num = len(to_excel_list)
+    col_num = len(to_excel_list[0])
+    for row in range(row_num):
+        for col in range(col_num):
+            sheet.cell(row=row+1, column=col+1).value = to_excel_list[row][col]
+    log_txt.add_log_txt("セルの編集可能が証明 : sheet.cell(row=row+1, column=col+1).value = to_excel_list[row][col]")
+    workbook.save(output_excel_path)
 
 
 def remove_non_number(text):
@@ -146,6 +175,7 @@ def csv_to_list(csv_path: str = "output.csv"):
     return data_list
 
 
+
 def get_search_option(input_csv_path):
     """ 定期実行ツールがcsvファイルから検索方法と条件を取得する関数 """
     search_option_list = csv_to_list(input_csv_path)
@@ -177,8 +207,11 @@ def cloud_fast_api_1(data: RequestData):
     log_txt.add_log_txt("メールアドレスのリストをExcelから取得 が成功")
     
     try:
-        # csvファイルからExcelファイルに変換
-        csv_to_excel(output_reins_csv_path , output_reins_excel_path)
+        # スクレイピング結果のリストをExcelファイルに保存
+        output_excel_list = excel_to_list(output_reins_excel_path)
+        list_to_excel(output_excel_list , output_reins_excel_path)
+        ##### 最終的にはExcelの定型フォームに貼り付け
+        
         log_txt.add_log_txt("スクレイピング結果のcsvファイルをExcelファイルに変更 : 完了")
         # メールの送信文
         message_subject = "RenderのExcel操作のAPIテスト"
