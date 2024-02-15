@@ -218,7 +218,8 @@ def cloud_fast_api_1(data: RequestData):
         message_body = f"""
             RenderでExcel操作の達成完了しました。
         """
-        file_path = mail_excel_path
+        # file_path = mail_excel_path
+        file_path = output_reins_excel_path
     
     except:
         # メールの送信文
