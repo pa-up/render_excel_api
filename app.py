@@ -152,6 +152,35 @@ def list_to_excel(to_excel_list: list , output_excel_path: str = "output.xlsx"):
             log_txt.add_log_txt(f"row , col : {row} , {col} \n")
     log_txt.add_log_txt("セルの編集可能が証明 : sheet.cell(row=row+1, column=col+1).value = to_excel_list[row][col]")
     workbook.save(output_excel_path)
+
+
+def list_to_excel(to_excel_list: list , output_excel_path: str = "output.xlsx"):
+    workbook = openpyxl.Workbook()
+    log_txt.add_log_txt("Excelのワークブック起動完了 : workbook = openpyxl.load_workbook()")
+    sheet = workbook.active
+    log_txt.add_log_txt("ワークブックのアクティブ化完了 : sheet = workbook.active")
+    
+    # 多次元リストのサイズを取得(行ごとで列数に違いがあることを考慮)
+    row_num , col_num = len(to_excel_list) , 0
+    for row in range(row_num):
+        predict_col = len(to_excel_list[row])
+        if predict_col > col_num:
+            col_num = predict_col
+    log_txt.add_log_txt(f"row_num , col_num : {row_num} , {col_num}")
+
+    for row in range(row_num):
+        for col in range(col_num):
+            try:
+                log_txt.add_log_txt(f"pressed_cell_value : {to_excel_list[row][col]}")
+                log_txt.add_log_txt(f"row , col : {row} , {col} \n \n")
+                sheet.cell(row=row+1, column=col+1).value = to_excel_list[row][col]
+            except IndexError:
+                pass
+    log_txt.add_log_txt("セルの編集可能が証明 : sheet.cell(row=row+1, column=col+1).value = to_excel_list[row][col]")
+    workbook.save(output_excel_path)
+
+
+
     
 
 class logText:
